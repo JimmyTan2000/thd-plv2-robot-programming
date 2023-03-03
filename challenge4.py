@@ -8,10 +8,14 @@ from nav_msgs.msg import Odometry
 from transforms3d.euler import quat2euler
 from math import pi 
 from math import floor
+from enum import Enum, auto
 
-state = "go"
-# angle_1 = 0
-# angle_2 = None
+class State(Enum):
+    GO = auto()
+    STOPPED = auto()
+    FIRST_ROTATION_STOPPED = auto()
+    END = auto()
+
 class Tb3(Node):
     def __init__(self):
         super().__init__('tb3')
@@ -31,10 +35,11 @@ class Tb3(Node):
                 Odometry,
                 'odom',
                 self.odom_callback,  # function to run upon message arrival
-                qos_profile_sensor_data)  # allows packet loss
+                1)  # allows packet loss
+
         self.ang_vel_percent = 0
         self.lin_vel_percent = 0
-
+        self.state = State.GO
 
     def vel(self, lin_vel_percent, ang_vel_percent=0):
         """ publishes linear and angular velocities in percent
@@ -52,51 +57,38 @@ class Tb3(Node):
         self.lin_vel_percent = lin_vel_percent
     
     def odom_callback(self, msg):
-        global state
         x = msg.pose.pose.orientation.x
         y = msg.pose.pose.orientation.y
         z = msg.pose.pose.orientation.z
         w = msg.pose.pose.orientation.w
-        print('x:', x)
-        print('y:', y)
-        print('z:', z)
-        print('w:', w)
         angles = quat2euler([w,x,y,z])
         i = angles[0] * 180 / pi
-        y = angles[1] * 180 / pi
-        z = angles[2] * 180 / pi
-        rotation_z = floor(i)
-        print(i, y, z)
-        # if state == "go":
-        #     global angle_1
-        #     angle_1 = abs (z)
-        if state == "stopped":
-            self.rotate(15)
-            if  round(abs(z)) == 180:
+        j = angles[1] * 180 / pi
+        k = angles[2] * 180 / pi
+        print(i, j, k)
+        if self.state == State.STOPPED:
+            self.rotate(0)
+            if  round(abs(k)) == 180:
                 self.rotate(0)
-                state = "first rotation stopped"
-        #print(floor(abs(abs(z)-angle_1)))
+                self.state = State.FIRST_ROTATION_STOPPED
+
     def scan_callback(self, msg):
         """ is run whenever a LaserScan msg is received
         """
-        global state
         print()
         print('Distances:')
         print('⬆️ :', msg.ranges[0])
         print('⬇️ :', msg.ranges[180])
         print('⬅️ :', msg.ranges[90])
         print('➡️ :', msg.ranges[-90])
-        print(state)
+        print('Intensities: ', msg.intensities)
         
-        # self.collision_avoidance_sensor(msg, 0.25)
-        #self.loop_with_collision_avoidance(msg, 0.35)
-        if state == "go":
-            self.collision_avoidance_sensor(msg, 0.3, "stopped")
+        if self.state == State.GO:
+            self.collision_avoidance_sensor(msg, 0.3, State.STOPPED)
 
-        if state == "first rotation stopped":
-            self.collision_avoidance_sensor(msg, 0.3, "end")
+        if self.state == State.FIRST_ROTATION_STOPPED:
+            self.collision_avoidance_sensor(msg, 0.3, State.END)
         
-
     def stop(self):
         self.vel(0)
 
@@ -105,38 +97,14 @@ class Tb3(Node):
 
     def collision_avoidance_sensor(self, msg, min_distance, next_state = None):
         if msg.ranges[0] > min_distance:
-            self.go(20)
+            self.go(0)
         else:
-            global state
             self.stop()
             print("it is stopped")
-            state = next_state
+            self.state = next_state
 
     def rotate(self, ang_speed):
         self.vel(0, ang_speed)
-
-    # def loop_with_collision_avoidance(self, msg, min_distance,rotation_z):
-    #     global state
-    #     if state == "go":
-    #         self.collision_avoidance_sensor(msg, 0.3, "stopped")
-        
-    #     if state == "stopped":
-    #         self.rotate(15)
-    #         if rotation_z == 90:
-    #             self.rotate(0)
-    #             state = "first rotation stopped"
-
-    #     if state == "first rotation stopped":
-    #         self.collision_avoidance_sensor(msg, 0.3, "first wall reached")
-
-    #     # if state == "first wall reached":
-    #     #     self.rotate(10)
-    #     #     if msg.ranges[0] > min_distance + 0.02 and msg.ranges[-90] <= min_distance - 0.12:
-    #     #         state = "go"
-
-                
-
-
 
 def main(args=None):
     rclpy.init(args=args)
