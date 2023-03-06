@@ -13,8 +13,18 @@ from enum import Enum, auto
 class State(Enum):
     GO = auto()
     STOPPED = auto()
+    REACHED_FIRST_WALL = auto()
+    REACHED_SECOND_WALL = auto()
+    REACHED_THIRD_WALL = auto()
     FIRST_ROTATION_STOPPED = auto()
+    SECOND_ROTATION_STOPPED = auto()
+    THIRD_ROTATION_STOPPED = auto()
+    FOURTH_ROTATION_STOPPED = auto()
+    FIFTH_ROTATION_STOPPED = auto()
+    SIXTH_ROTATION_STOPPED = auto()
+    REACHED_RED_WALL = auto()
     END = auto()
+    
 
 class Tb3(Node):
     def __init__(self):
@@ -65,29 +75,78 @@ class Tb3(Node):
         i = angles[0] * 180 / pi
         j = angles[1] * 180 / pi
         k = angles[2] * 180 / pi
-        print(i, j, k)
-        if self.state == State.STOPPED:
-            self.rotate(0)
-            if  round(abs(k)) == 180:
+        # rint(i, j, k)
+        if self.state == State.GO:
+            self.rotate(-15)
+            print(round(abs(k)))
+            if round(abs(k)) == 0:
                 self.rotate(0)
                 self.state = State.FIRST_ROTATION_STOPPED
+        
+        if self.state == State.FIRST_ROTATION_STOPPED:
+            if msg.pose.pose.position.x < 2.50:
+                self.go(100)
+            else:
+                self.stop()
+                self.rotate(15)
+                if round(abs(k)) == 90:
+                    self.rotate(0)
+                    self.state = State.SECOND_ROTATION_STOPPED
+
+        if self.state == State.SECOND_ROTATION_STOPPED:
+            self.go(100)
+            if msg.pose.pose.position.y > 1.50:
+                self.stop()
+                self.rotate(-15)
+                if round(abs(k)) == 0:
+                    self.rotate(0)
+                    self.state = State.THIRD_ROTATION_STOPPED
+
+        if self.state == State.REACHED_FIRST_WALL:
+            self.rotate(15)
+            if round(abs(k)) == 90:
+                    self.rotate(0)
+                    self.state = State.FOURTH_ROTATION_STOPPED
+
+        if self.state == State.REACHED_SECOND_WALL:
+            self.rotate(-15)
+            if round(abs(k)) == 0:
+                    self.rotate(0)
+                    self.state = State.FIFTH_ROTATION_STOPPED
+
+        if self.state == State.REACHED_THIRD_WALL:
+            self.rotate(15)
+            if round(abs(k)) == 90:
+                    self.rotate(0)
+                    self.state = State.SIXTH_ROTATION_STOPPED
 
     def scan_callback(self, msg):
         """ is run whenever a LaserScan msg is received
         """
-        print()
-        print('Distances:')
+        # print()
+        # print('Distances:')
         print('⬆️ :', msg.ranges[0])
-        print('⬇️ :', msg.ranges[180])
-        print('⬅️ :', msg.ranges[90])
-        print('➡️ :', msg.ranges[-90])
-        print('Intensities: ', msg.intensities)
-        
-        if self.state == State.GO:
-            self.collision_avoidance_sensor(msg, 0.3, State.STOPPED)
+        # print('⬇️ :', msg.ranges[180])
+        # print('⬅️ :', msg.ranges[90])
+        # print('➡️ :', msg.ranges[-90])
+        # print('Intensities: ', msg.intensities)
 
-        if self.state == State.FIRST_ROTATION_STOPPED:
-            self.collision_avoidance_sensor(msg, 0.3, State.END)
+        if self.state == State.THIRD_ROTATION_STOPPED:
+            self.collision_avoidance_sensor(msg, 0.4, State.REACHED_FIRST_WALL)
+
+        if self.state == State.FOURTH_ROTATION_STOPPED:
+            self.collision_avoidance_sensor(msg, 0.4, State.REACHED_SECOND_WALL)
+
+        if self.state == State.FIFTH_ROTATION_STOPPED:
+            self.collision_avoidance_sensor(msg, 0.4, State.REACHED_THIRD_WALL)
+
+        if self.state == State.SIXTH_ROTATION_STOPPED:
+            if msg.intensities[0] == 2.0:
+                self.state = State.REACHED_RED_WALL
+
+        if self.state == State.REACHED_RED_WALL:
+            print("Red wall seen")
+            self.touch_wall_and_stop(msg, 0.25, State.END)
         
     def stop(self):
         self.vel(0)
@@ -95,9 +154,18 @@ class Tb3(Node):
     def go(self, val = 15):
         self.vel(val)
 
+    def touch_wall_and_stop(self, msg, slow_distance, next_state = None):
+        if msg.ranges[0] > slow_distance:
+            self.go(100)
+        else:
+            self.go(1)
+            if msg.ranges[0] <= 0.15:
+                print("Red wall touched")
+                self.stop()
+
     def collision_avoidance_sensor(self, msg, min_distance, next_state = None):
         if msg.ranges[0] > min_distance:
-            self.go(0)
+            self.go(100)
         else:
             self.stop()
             print("it is stopped")

@@ -1,0 +1,202 @@
+
+<?xml version="1.0" ?>
+<sdf version="1.7">
+    <model name="labyrinth">
+		
+				
+				
+					
+			
+			<include><name>04h</name><uri>model://wall</uri><pose>0 4 0 0 0 0</pose></include>
+		
+					
+			
+			<include><name>04v</name><uri>model://wall</uri><pose>0 4 0 0 0 1.5707963267948966</pose></include>
+		
+					
+			
+			<include><name>05h</name><uri>model://wall</uri><pose>0 5 0 0 0 0</pose></include>
+		
+				
+				
+					
+			
+			<include><name>03v</name><uri>model://wall</uri><pose>0 3 0 0 0 1.5707963267948966</pose></include>
+		
+				
+				
+					
+			
+			<include><name>02v</name><uri>model://wall</uri><pose>0 2 0 0 0 1.5707963267948966</pose></include>
+		
+				
+				
+					
+			
+			<include><name>01v</name><uri>model://wall</uri><pose>0 1 0 0 0 1.5707963267948966</pose></include>
+		
+				
+				
+					
+			
+			<include><name>00h</name><uri>model://wall_White</uri><pose>0 0 0 0 0 0</pose></include>
+		
+					
+			
+			<include><name>00v</name><uri>model://wall</uri><pose>0 0 0 0 0 1.5707963267948966</pose></include>
+		
+				
+				
+					
+			
+			<include><name>15h</name><uri>model://wall</uri><pose>1 5 0 0 0 0</pose></include>
+		
+				
+				
+					
+			
+			<include><name>13h</name><uri>model://wall</uri><pose>1 3 0 0 0 0</pose></include>
+		
+				
+				
+					
+			
+			<include><name>12v</name><uri>model://wall</uri><pose>1 2 0 0 0 1.5707963267948966</pose></include>
+		
+				
+				
+					
+			
+			<include><name>11h</name><uri>model://wall</uri><pose>1 1 0 0 0 0</pose></include>
+		
+					
+			
+			<include><name>11v</name><uri>model://wall</uri><pose>1 1 0 0 0 1.5707963267948966</pose></include>
+		
+				
+				
+					
+			
+			<include><name>10h</name><uri>model://wall</uri><pose>1 0 0 0 0 0</pose></include>
+		
+				
+				
+					
+			
+			<include><name>24v</name><uri>model://wall</uri><pose>2 4 0 0 0 1.5707963267948966</pose></include>
+		
+					
+			
+			<include><name>25h</name><uri>model://wall</uri><pose>2 5 0 0 0 0</pose></include>
+		
+				
+				
+					
+			
+			<include><name>23v</name><uri>model://wall</uri><pose>2 3 0 0 0 1.5707963267948966</pose></include>
+		
+				
+				
+					
+			
+			<include><name>22h</name><uri>model://wall</uri><pose>2 2 0 0 0 0</pose></include>
+		
+				
+				
+					
+			
+			<include><name>21h</name><uri>model://wall</uri><pose>2 1 0 0 0 0</pose></include>
+		
+				
+				
+					
+			
+			<include><name>20h</name><uri>model://wall</uri><pose>2 0 0 0 0 0</pose></include>
+		
+				
+				
+					
+			
+			<include><name>35h</name><uri>model://wall</uri><pose>3 5 0 0 0 0</pose></include>
+		
+				
+				
+					
+			
+			<include><name>33h</name><uri>model://wall</uri><pose>3 3 0 0 0 0</pose></include>
+		
+					
+			
+			<include><name>33v</name><uri>model://wall</uri><pose>3 3 0 0 0 1.5707963267948966</pose></include>
+		
+				
+				
+				
+				
+					
+			
+			<include><name>31v</name><uri>model://wall</uri><pose>3 1 0 0 0 1.5707963267948966</pose></include>
+		
+				
+				
+					
+			
+			<include><name>30h</name><uri>model://wall</uri><pose>3 0 0 0 0 0</pose></include>
+		
+				
+				
+					
+			
+			<include><name>44v</name><uri>model://wall</uri><pose>4 4 0 0 0 1.5707963267948966</pose></include>
+		
+					
+			
+			<include><name>45h</name><uri>model://wall_Red</uri><pose>4 5 0 0 0 0</pose></include>
+		
+					
+			
+			<include><name>54v</name><uri>model://wall</uri><pose>5 4 0 0 0 1.5707963267948966</pose></include>
+		
+				
+				
+					
+			
+			<include><name>53v</name><uri>model://wall</uri><pose>5 3 0 0 0 1.5707963267948966</pose></include>
+		
+				
+				
+					
+			
+			<include><name>42v</name><uri>model://wall</uri><pose>4 2 0 0 0 1.5707963267948966</pose></include>
+		
+					
+			
+			<include><name>52v</name><uri>model://wall</uri><pose>5 2 0 0 0 1.5707963267948966</pose></include>
+		
+				
+				
+					
+			
+			<include><name>41v</name><uri>model://wall</uri><pose>4 1 0 0 0 1.5707963267948966</pose></include>
+		
+					
+			
+			<include><name>51v</name><uri>model://wall</uri><pose>5 1 0 0 0 1.5707963267948966</pose></include>
+		
+				
+				
+					
+			
+			<include><name>40h</name><uri>model://wall</uri><pose>4 0 0 0 0 0</pose></include>
+		
+					
+			
+			<include><name>40v</name><uri>model://wall</uri><pose>4 0 0 0 0 1.5707963267948966</pose></include>
+		
+					
+			
+			<include><name>50v</name><uri>model://wall</uri><pose>5 0 0 0 0 1.5707963267948966</pose></include>
+		
+	</model>
+</sdf>
+
