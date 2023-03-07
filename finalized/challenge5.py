@@ -17,8 +17,8 @@ class State(Enum):
     DEBUG = auto()
     ROTATING = auto()
     CLEARED = auto()
-    REACHED_RED_WALL = auto()
-    END = ()
+    SEEN_RED_WALL = auto()
+    REACHED_RED_WALL = ()
     
 class Tb3(Node):
     def __init__(self):
@@ -77,7 +77,6 @@ class Tb3(Node):
 
         # TODO premature rotation stopping observed
         if self.state == State.ROTATING:
-            print(round(abs(k)))
             if round(abs(k)) == 0 or round(abs(k)) == 90 or round(abs(k)) == 180:
                 self.rotate(0)
                 self.state = State.DRIVING
@@ -107,7 +106,7 @@ class Tb3(Node):
             print('⬅️ :', msg.ranges[90])
             print('➡️ :', msg.ranges[-90])
 
-        if msg.ranges[0] < 0.6:
+        if msg.ranges[0] < 0.6 and self.state != State.SEEN_RED_WALL and self.state != State.REACHED_RED_WALL:
             self.state = State.BLOCKED
        
         if self.state == State.BLOCKED:
@@ -118,11 +117,15 @@ class Tb3(Node):
             self.state = State.AT_JUNCTION
 
         if msg.intensities[0] == 2.0:
-            self.state = State.REACHED_RED_WALL
+            self.state = State.SEEN_RED_WALL
+
+        if self.state == State.SEEN_RED_WALL:
+            print("Red wall seen")
+            self.touch_wall_and_stop(msg, 0.25, State.REACHED_RED_WALL)
 
         if self.state == State.REACHED_RED_WALL:
-            print("Red wall seen")
-            self.touch_wall_and_stop(msg, 0.25, State.END)
+            print("END")
+            self.stop()
 
     def decide_rotate_direction(self, msg):
         print("deciding")
@@ -148,6 +151,7 @@ class Tb3(Node):
             if msg.ranges[0] <= 0.15:
                 print("Red wall touched")
                 self.stop()
+                self.state = next_state
 
     def collision_avoidance_sensor(self, msg, min_distance, next_state = None):
         if msg.ranges[0] > min_distance:
