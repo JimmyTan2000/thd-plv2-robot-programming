@@ -11,22 +11,15 @@ from math import floor
 from enum import Enum, auto
 
 class State(Enum):
-    GO = auto()
-    STOPPED = auto()
-    REACHED_FIRST_WALL = auto()
-    REACHED_SECOND_WALL = auto()
-    REACHED_THIRD_WALL = auto()
-    FIRST_ROTATION_STOPPED = auto()
-    SECOND_ROTATION_STOPPED = auto()
-    THIRD_ROTATION_STOPPED = auto()
-    FOURTH_ROTATION_STOPPED = auto()
-    FIFTH_ROTATION_STOPPED = auto()
-    SIXTH_ROTATION_STOPPED = auto()
-    REACHED_RED_WALL = auto()
+    DRIVING = auto()
+    BLOCKED = auto()
+    AT_JUNCTION = auto()
     DEBUG = auto()
-    END = auto()
+    ROTATING = auto()
+    CLEARED = auto()
+    REACHED_RED_WALL = auto()
+    END = ()
     
-
 class Tb3(Node):
     def __init__(self):
         super().__init__('tb3')
@@ -50,7 +43,12 @@ class Tb3(Node):
 
         self.ang_vel_percent = 0
         self.lin_vel_percent = 0
-        self.state = State.DEBUG # GO for normal execution and DEBUG for debugging 
+        # self.state = State.DEBUG # GO for normal execution and DEBUG for debugging 
+        self.state = State.DRIVING
+        self.last_location_x = []
+        self.last_location_y = []
+        #self.at_junction = False
+        #self.junction = [None, None, None] # left, x coord, y coord
 
     def vel(self, lin_vel_percent, ang_vel_percent=0):
         """ publishes linear and angular velocities in percent
@@ -77,49 +75,24 @@ class Tb3(Node):
         j = angles[1] * 180 / pi
         k = angles[2] * 180 / pi
         # print(i, j, k)
-        if self.state == State.GO:
-            self.rotate(-15)
+
+        # TODO premature rotation stopping observed
+        if self.state == State.ROTATING:
             print(round(abs(k)))
-            if round(abs(k)) == 0:
+            if round(abs(k)) == 0 or round(abs(k)) == 90 or round(abs(k)) == 180:
                 self.rotate(0)
-                self.state = State.FIRST_ROTATION_STOPPED
-        
-        if self.state == State.FIRST_ROTATION_STOPPED:
-            if msg.pose.pose.position.x < 2.50:
-                self.go(100)
-            else:
-                self.stop()
+                self.state = State.DRIVING
+
+        # TODO inspect this, stutter at junction turning consistently observed
+        if self.state == State.AT_JUNCTION:
+            print("AT JUNCTION")
+            self.last_location_x.append(msg.pose.pose.position.x)
+            self.last_location_y.append(msg.pose.pose.position.y)
+            if abs(msg.pose.pose.position.x - self.last_location_x[0]) >= 0.2 or abs(msg.pose.pose.position.y - self.last_location_y[0]) >= 0.2:
                 self.rotate(15)
-                if round(abs(k)) == 90:
-                    self.rotate(0)
-                    self.state = State.SECOND_ROTATION_STOPPED
-
-        if self.state == State.SECOND_ROTATION_STOPPED:
-            self.go(100)
-            if msg.pose.pose.position.y > 1.50:
-                self.stop()
-                self.rotate(-15)
-                if round(abs(k)) == 0:
-                    self.rotate(0)
-                    self.state = State.THIRD_ROTATION_STOPPED
-
-        if self.state == State.REACHED_FIRST_WALL:
-            self.rotate(15)
-            if round(abs(k)) == 90:
-                    self.rotate(0)
-                    self.state = State.FOURTH_ROTATION_STOPPED
-
-        if self.state == State.REACHED_SECOND_WALL:
-            self.rotate(-15)
-            if round(abs(k)) == 0:
-                    self.rotate(0)
-                    self.state = State.FIFTH_ROTATION_STOPPED
-
-        if self.state == State.REACHED_THIRD_WALL:
-            self.rotate(15)
-            if round(abs(k)) == 90:
-                    self.rotate(0)
-                    self.state = State.SIXTH_ROTATION_STOPPED
+                self.last_location_x = []
+                self.last_location_y = []
+                self.state = State.ROTATING
 
     def scan_callback(self, msg):
         """ is run whenever a LaserScan msg is received
@@ -131,7 +104,9 @@ class Tb3(Node):
         # print('⬅️ :', msg.ranges[90])
         # print('➡️ :', msg.ranges[-90])
         # print('Intensities: ', msg.intensities)
-
+        if self.state == State.DRIVING:
+            self.go()
+    
         if self.state == State.DEBUG:
             print()
             print('⬆️ :', msg.ranges[0])
@@ -139,33 +114,43 @@ class Tb3(Node):
             print('⬅️ :', msg.ranges[90])
             print('➡️ :', msg.ranges[-90])
 
+        if msg.ranges[0] < 0.6:
+            self.state = State.BLOCKED
+       
+        if self.state == State.BLOCKED:
+            self.stop()
+            self.decide_rotate_direction(msg)
 
-        if self.state == State.THIRD_ROTATION_STOPPED:
-            self.collision_avoidance_sensor(msg, 0.4, State.REACHED_FIRST_WALL)
+        if msg.ranges[0] > 1.2 and msg.ranges[90] > 1.2 and self.state == State.DRIVING and msg.ranges[180] > 1.2:
+            self.state = State.AT_JUNCTION
 
-        if self.state == State.FOURTH_ROTATION_STOPPED:
-            self.collision_avoidance_sensor(msg, 0.4, State.REACHED_SECOND_WALL)
-
-        if self.state == State.FIFTH_ROTATION_STOPPED:
-            self.collision_avoidance_sensor(msg, 0.4, State.REACHED_THIRD_WALL)
-
-        if self.state == State.SIXTH_ROTATION_STOPPED:
-            if msg.intensities[0] == 2.0:
-                self.state = State.REACHED_RED_WALL
+        if msg.intensities[0] == 2.0:
+            self.state = State.REACHED_RED_WALL
 
         if self.state == State.REACHED_RED_WALL:
             print("Red wall seen")
             self.touch_wall_and_stop(msg, 0.25, State.END)
-        
+
+    def decide_rotate_direction(self, msg):
+        print("deciding")
+        if msg.ranges [-90] > 1.1 and msg.ranges[90] > 1.1:
+            self.rotate(15)
+        elif msg.ranges[-90] > msg.ranges[90]:
+            self.rotate(-15)
+        else:
+            self.rotate(15)
+        # self.rotate(15)
+        self.state = State.ROTATING
+
     def stop(self):
         self.vel(0)
 
-    def go(self, val = 15):
+    def go(self, val = 100):
         self.vel(val)
 
     def touch_wall_and_stop(self, msg, slow_distance, next_state = None):
         if msg.ranges[0] > slow_distance:
-            self.go(100)
+            self.go()
         else:
             self.go(1)
             if msg.ranges[0] <= 0.15:
@@ -174,7 +159,7 @@ class Tb3(Node):
 
     def collision_avoidance_sensor(self, msg, min_distance, next_state = None):
         if msg.ranges[0] > min_distance:
-            self.go(100)
+            self.go()
         else:
             self.stop()
             print("it is stopped")
