@@ -19,6 +19,7 @@ class State(Enum):
     CLEARED = auto()
     SEEN_RED_WALL = auto()
     REACHED_RED_WALL = ()
+    END = auto()
     
 class Tb3(Node):
     def __init__(self):
@@ -86,7 +87,7 @@ class Tb3(Node):
             print("AT JUNCTION")
             self.last_location_x.append(msg.pose.pose.position.x)
             self.last_location_y.append(msg.pose.pose.position.y)
-            if abs(msg.pose.pose.position.x - self.last_location_x[0]) >= 0.2 or abs(msg.pose.pose.position.y - self.last_location_y[0]) >= 0.2:
+            if abs(msg.pose.pose.position.x - self.last_location_x[0]) >= 0.15 or abs(msg.pose.pose.position.y - self.last_location_y[0]) >= 0.15:
                 self.rotate(15)
                 self.last_location_x = []
                 self.last_location_y = []
@@ -106,26 +107,29 @@ class Tb3(Node):
             print('⬅️ :', msg.ranges[90])
             print('➡️ :', msg.ranges[-90])
 
-        if msg.ranges[0] < 0.6 and self.state != State.SEEN_RED_WALL and self.state != State.REACHED_RED_WALL:
+        if msg.ranges[0] < 0.6 and self.state != State.SEEN_RED_WALL and self.state != State.REACHED_RED_WALL and self.state != State.END:
             self.state = State.BLOCKED
        
         if self.state == State.BLOCKED:
             self.stop()
             self.decide_rotate_direction(msg)
 
-        if msg.ranges[0] > 1.2 and msg.ranges[90] > 1.2 and self.state == State.DRIVING and msg.ranges[180] > 1.2:
+        if msg.ranges[0] > 1.2 and msg.ranges[90] > 1.2 and self.state == State.DRIVING and msg.ranges[180] > 1.2 and self.state != State.END:
             self.state = State.AT_JUNCTION
 
-        if msg.intensities[0] == 2.0 and self.state != State.ROTATING:
+        if msg.intensities[0] == 2.0 and self.state != State.ROTATING and self.state != State.END:
             self.state = State.SEEN_RED_WALL
 
         if self.state == State.SEEN_RED_WALL:
             print("Red wall seen")
-            self.touch_wall_and_stop(msg, 0.25, State.REACHED_RED_WALL)
+            self.touch_wall_and_stop(msg, 0.2, State.REACHED_RED_WALL)
 
         if self.state == State.REACHED_RED_WALL:
-            print("END")
             self.stop()
+            self.state = State.END
+        
+        if self.state == State.END:
+            print("END")
 
     def decide_rotate_direction(self, msg):
         print("deciding")
@@ -148,7 +152,7 @@ class Tb3(Node):
             self.go()
         else:
             self.go(1)
-            if msg.ranges[0] <= 0.15:
+            if msg.ranges[0] <= 0.12:
                 print("Red wall touched")
                 self.stop()
                 self.state = next_state
