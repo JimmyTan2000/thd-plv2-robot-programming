@@ -43,10 +43,14 @@ class Tb3(Node):
 
         self.ang_vel_percent = 0
         self.lin_vel_percent = 0
-        # self.state = State.DEBUG # GO for normal execution and DEBUG for debugging 
+        #self.state = State.DEBUG # GO for normal execution and DEBUG for debugging 
         self.state = State.DRIVING
         self.last_location_x = []
         self.last_location_y = []
+        self.last_junction_x = []
+        self.last_junction_y = []
+        self.is_previous_junction = False
+        self.has_rotated = False
         
 
     def vel(self, lin_vel_percent, ang_vel_percent=0):
@@ -82,22 +86,46 @@ class Tb3(Node):
                 self.state = State.DRIVING
 
         # TODO inspect this, stutter at junction turning consistently observed
+        # TODO all junction data must be saved 
         if self.state == State.AT_JUNCTION:
             print("AT JUNCTION")
             self.last_location_x.append(msg.pose.pose.position.x)
             self.last_location_y.append(msg.pose.pose.position.y)
             if abs(msg.pose.pose.position.x - self.last_location_x[0]) >= 0.2 or abs(msg.pose.pose.position.y - self.last_location_y[0]) >= 0.2:
                 self.rotate(15)
+                self.last_junction_x.append(msg.pose.pose.position.x) 
+                self.last_junction_y.append(msg.pose.pose.position.y)
                 self.last_location_x = []
                 self.last_location_y = []
                 self.state = State.ROTATING
 
+        # TODO find a way to flip the boolean to False after (to be done) condition and reset the junction location
+        if len(self.last_junction_x) != 0 and len(self.last_junction_y) != 0:
+            print(f"junction location not empty : {self.last_junction_x[0]}, {self.last_junction_y[0]}")
+            if self.last_junction_x[0] - 0.5 <= msg.pose.pose.position.x <= self.last_junction_x[0] + 0.5 \
+                and self.last_junction_y[0] - 0.5 <= msg.pose.pose.position.y <= self.last_junction_y[0] + 0.5 \
+                and self.has_rotated == True:
+
+                self.is_previous_junction = True
+                
+        if self.state == State.DRIVING:
+            self.go()
+            if len(self.last_junction_x) != 0 and len(self.last_junction_y) != 0:
+                if abs(msg.pose.pose.position.x - self.last_junction_x[0]) >= 1.2 or abs(msg.pose.pose.position.y - self.last_junction_y[0]) >= 1.2: 
+                    self.last_junction_x = self.last_junction_y = []
+                    self.is_previous_junction = False
+                    print("last junction information resetted")
+
     def scan_callback(self, msg):
         """ is run whenever a LaserScan msg is received
         """
+        #print('⬅️ :', msg.ranges[90])
+        #print('➡️ :', msg.ranges[-90])
         
-        if self.state == State.DRIVING:
-            self.go()
+        # if self.state == State.DRIVING:
+        #     self.go()
+        #     if len(self.last_junction_x) != 0 and len(self.last_junction_y) != 0:
+        #         if msg.pose.pose
     
         if self.state == State.DEBUG:
             print()
@@ -106,17 +134,22 @@ class Tb3(Node):
             print('⬅️ :', msg.ranges[90])
             print('➡️ :', msg.ranges[-90])
 
-        if msg.ranges[0] < 0.6 and self.state != State.SEEN_RED_WALL and self.state != State.REACHED_RED_WALL:
+        if msg.ranges[0] < 0.6 and msg.intensities[0] != 0 and self.state != State.SEEN_RED_WALL and self.state != State.REACHED_RED_WALL and self.state != State.ROTATING:
             self.state = State.BLOCKED
        
         if self.state == State.BLOCKED:
             self.stop()
+            self.has_rotated = True 
             self.decide_rotate_direction(msg)
 
-        if msg.ranges[0] > 1.2 and msg.ranges[90] > 1.2 and self.state == State.DRIVING and msg.ranges[180] > 1.2:
+        # TODO implement a function to check if the robot is at the previous function, should return a boolean
+        #if pass:
+           # pass
+        if msg.ranges[0] > 1.2 and msg.ranges[90] > 1.2 and self.state == State.DRIVING and msg.ranges[180] > 1.2 and self.is_previous_junction == False:
+            self.has_rotated = False
             self.state = State.AT_JUNCTION
 
-        if msg.intensities[0] == 2.0 and self.state != State.ROTATING:
+        if msg.intensities[0] == 2.0:
             self.state = State.SEEN_RED_WALL
 
         if self.state == State.SEEN_RED_WALL:
@@ -129,13 +162,20 @@ class Tb3(Node):
 
     def decide_rotate_direction(self, msg):
         print("deciding")
-        if msg.ranges [-90] > 1.1 and msg.ranges[90] > 1.1:
+        if msg.ranges [-90] > 1.0 and msg.ranges[90] > 1.0:
             self.rotate(15)
+            print("cond 1")
+            self.state = State.ROTATING
         elif msg.ranges[-90] > msg.ranges[90]:
             self.rotate(-15)
+            print("cond 2")
+            self.state = State.ROTATING
         else:
             self.rotate(15)
-        self.state = State.ROTATING
+            print("cond 3")
+            self.state = State.ROTATING
+        print("Reached rotating state")
+        
 
     def stop(self):
         self.vel(0)
