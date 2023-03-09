@@ -8,6 +8,7 @@ from nav_msgs.msg import Odometry
 from transforms3d.euler import quat2euler
 from math import pi 
 from math import floor
+from math import isinf
 from enum import Enum, auto
 
 class State(Enum):
@@ -19,6 +20,7 @@ class State(Enum):
     CLEARED = auto()
     SEEN_RED_WALL = auto()
     REACHED_RED_WALL = ()
+    END = auto()
     
 class Tb3(Node):
     def __init__(self):
@@ -43,14 +45,13 @@ class Tb3(Node):
 
         self.ang_vel_percent = 0
         self.lin_vel_percent = 0
-        #self.state = State.DEBUG # GO for normal execution and DEBUG for debugging 
+        # self.state = State.DEBUG # GO for normal execution and DEBUG for debugging 
         self.state = State.DRIVING
+        self.rotate_condition = None
         self.last_location_x = []
         self.last_location_y = []
-        self.last_junction_x = []
-        self.last_junction_y = []
-        self.is_previous_junction = False
-        self.has_rotated = False
+        # self.last_junction_x = []
+        # self.last_junction_y = []
         
 
     def vel(self, lin_vel_percent, ang_vel_percent=0):
@@ -78,7 +79,8 @@ class Tb3(Node):
         j = angles[1] * 180 / pi
         k = angles[2] * 180 / pi
         # print(i, j, k)
-
+        print(self.rotate_condition)
+        print(self.state)
         # TODO premature rotation stopping observed
         if self.state == State.ROTATING:
             if round(abs(k)) == 0 or round(abs(k)) == 90 or round(abs(k)) == 180:
@@ -86,46 +88,28 @@ class Tb3(Node):
                 self.state = State.DRIVING
 
         # TODO inspect this, stutter at junction turning consistently observed
-        # TODO all junction data must be saved 
         if self.state == State.AT_JUNCTION:
-            print("AT JUNCTION")
+            # print("AT JUNCTION")
             self.last_location_x.append(msg.pose.pose.position.x)
             self.last_location_y.append(msg.pose.pose.position.y)
-            if abs(msg.pose.pose.position.x - self.last_location_x[0]) >= 0.2 or abs(msg.pose.pose.position.y - self.last_location_y[0]) >= 0.2:
+            if abs(msg.pose.pose.position.x - self.last_location_x[0]) >= 0.15 or abs(msg.pose.pose.position.y - self.last_location_y[0]) >= 0.15:
                 self.rotate(15)
-                self.last_junction_x.append(msg.pose.pose.position.x) 
-                self.last_junction_y.append(msg.pose.pose.position.y)
                 self.last_location_x = []
                 self.last_location_y = []
                 self.state = State.ROTATING
 
-        # TODO find a way to flip the boolean to False after (to be done) condition and reset the junction location
-        if len(self.last_junction_x) != 0 and len(self.last_junction_y) != 0:
-            print(f"junction location not empty : {self.last_junction_x[0]}, {self.last_junction_y[0]}")
-            if self.last_junction_x[0] - 0.5 <= msg.pose.pose.position.x <= self.last_junction_x[0] + 0.5 \
-                and self.last_junction_y[0] - 0.5 <= msg.pose.pose.position.y <= self.last_junction_y[0] + 0.5 \
-                and self.has_rotated == True:
-
-                self.is_previous_junction = True
-                
-        if self.state == State.DRIVING:
-            self.go()
-            if len(self.last_junction_x) != 0 and len(self.last_junction_y) != 0:
-                if abs(msg.pose.pose.position.x - self.last_junction_x[0]) >= 1.2 or abs(msg.pose.pose.position.y - self.last_junction_y[0]) >= 1.2: 
-                    self.last_junction_x = self.last_junction_y = []
-                    self.is_previous_junction = False
-                    print("last junction information resetted")
-
     def scan_callback(self, msg):
         """ is run whenever a LaserScan msg is received
         """
-        #print('⬅️ :', msg.ranges[90])
-        #print('➡️ :', msg.ranges[-90])
-        
-        # if self.state == State.DRIVING:
-        #     self.go()
-        #     if len(self.last_junction_x) != 0 and len(self.last_junction_y) != 0:
-        #         if msg.pose.pose
+        # print()
+        # print('⬆️ :', msg.ranges[0], type(msg.ranges[0]), isinf(msg.ranges[0]))
+        # print('⬇️ :', msg.ranges[180], type(msg.ranges[180]))
+        # print('⬅️ :', msg.ranges[90], type(msg.ranges[90]))
+        # print('➡️ :', msg.ranges[-90], type(msg.ranges[-90]))
+        print(self.state)
+        print(self.rotate_condition)
+        if self.state == State.DRIVING:
+            self.go()
     
         if self.state == State.DEBUG:
             print()
@@ -134,48 +118,42 @@ class Tb3(Node):
             print('⬅️ :', msg.ranges[90])
             print('➡️ :', msg.ranges[-90])
 
-        if msg.ranges[0] < 0.6 and msg.intensities[0] != 0 and self.state != State.SEEN_RED_WALL and self.state != State.REACHED_RED_WALL and self.state != State.ROTATING:
+        if msg.ranges[0] < 0.6 and self.state != State.SEEN_RED_WALL and self.state != State.REACHED_RED_WALL and self.state != State.END:
             self.state = State.BLOCKED
        
         if self.state == State.BLOCKED:
             self.stop()
-            self.has_rotated = True 
             self.decide_rotate_direction(msg)
 
-        # TODO implement a function to check if the robot is at the previous function, should return a boolean
-        #if pass:
-           # pass
-        if msg.ranges[0] > 1.2 and msg.ranges[90] > 1.2 and self.state == State.DRIVING and msg.ranges[180] > 1.2 and self.is_previous_junction == False:
-            self.has_rotated = False
+        if msg.ranges[0] > 1.2 and msg.ranges[90] > 1.2 and self.state == State.DRIVING and msg.ranges[180] > 1.2 and self.state != State.END and self.rotate_condition != 1:
             self.state = State.AT_JUNCTION
 
-        if msg.intensities[0] == 2.0:
+        if msg.intensities[0] == 2.0 and self.state != State.ROTATING and self.state != State.END:
             self.state = State.SEEN_RED_WALL
 
         if self.state == State.SEEN_RED_WALL:
-            print("Red wall seen")
-            self.touch_wall_and_stop(msg, 0.25, State.REACHED_RED_WALL)
+            # print("Red wall seen")
+            self.touch_wall_and_stop(msg, 0.2, State.REACHED_RED_WALL)
 
         if self.state == State.REACHED_RED_WALL:
-            print("END")
             self.stop()
+            self.state = State.END
+        
+        # if self.state == State.END:
+            # print("END")
 
     def decide_rotate_direction(self, msg):
         print("deciding")
-        if msg.ranges [-90] > 1.0 and msg.ranges[90] > 1.0:
+        if msg.ranges [-90] > 1.1 and msg.ranges[90] > 1.1:
+            self.rotate_condition = 1
             self.rotate(15)
-            print("cond 1")
-            self.state = State.ROTATING
         elif msg.ranges[-90] > msg.ranges[90]:
             self.rotate(-15)
-            print("cond 2")
-            self.state = State.ROTATING
+            self.rotate_condition = 2
         else:
             self.rotate(15)
-            print("cond 3")
-            self.state = State.ROTATING
-        print("Reached rotating state")
-        
+            self.rotate_condition = 3
+        self.state = State.ROTATING
 
     def stop(self):
         self.vel(0)
@@ -183,22 +161,20 @@ class Tb3(Node):
     def go(self, val = 100):
         self.vel(val)
 
+    #TODO slow_distance currently not in use, delete it if decided to remove braking feature 
     def touch_wall_and_stop(self, msg, slow_distance, next_state = None):
-        if msg.ranges[0] > slow_distance:
-            self.go()
-        else:
-            self.go(1)
-            if msg.ranges[0] <= 0.15:
-                print("Red wall touched")
-                self.stop()
-                self.state = next_state
+        self.go()
+        if isinf(msg.ranges[0]) or isinf(msg.ranges[-90]):
+            # print("inf registered")
+            self.stop()
+            self.state = next_state
 
     def collision_avoidance_sensor(self, msg, min_distance, next_state = None):
         if msg.ranges[0] > min_distance:
             self.go()
         else:
             self.stop()
-            print("it is stopped")
+            # print("it is stopped")
             self.state = next_state
 
     def rotate(self, ang_speed):
