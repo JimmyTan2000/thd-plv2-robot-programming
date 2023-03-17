@@ -67,7 +67,7 @@ class Tb3(Node):
         k = angles[2] * 180 / pi
         print(i, j, k)
         if self.state == State.STOPPED:
-            self.rotate(20)
+            self.rotate(10)
             if  round(abs(k)) == 180:
                 self.rotate(0)
                 self.state = State.FIRST_ROTATION_STOPPED

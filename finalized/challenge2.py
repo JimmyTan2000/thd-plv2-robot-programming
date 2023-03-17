@@ -77,7 +77,7 @@ class Tb3(Node):
             self.collision_avoidance_sensor(msg, 0.3, "stopped")
         
         if state == "stopped":
-            self.rotate(15)
+            self.rotate(10)
             if msg.ranges[-90] <= min_distance - 0.11:
                 self.rotate(0)
                 state = "first rotation stopped"

@@ -48,8 +48,8 @@ class Tb3(Node):
         #print('⬇️ :', msg.ranges[180])
         #print('⬅️ :', msg.ranges[90])
         #print('➡️ :', msg.ranges[-90])
-        if msg.ranges[0] > 0.5:
-            self.vel(15,10)
+        if msg.ranges[0] > 0.18:
+            self.vel(15)
         else:
             self.vel(0)
 
