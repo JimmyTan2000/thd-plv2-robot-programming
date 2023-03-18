@@ -1,5 +1,5 @@
 # Challenges 
-During the 8 days course for Robot Programming, Professor Gökçe Aydos has introduced a set of problems for us to solve. They will be addressed and explained one by one below
+During the 8 days course for Robot Programming, Professor Gökçe Aydos has introduced a set of problems for us to solve. They will be addressed and explained one by one below.
 
 ## Challenge 1 
 This is the first challenge to get our hands warm for the course. The goal of this challenge is to drive to the red wall as close as we can and stop without colliding into it. For this challenge, we need to run the bot in a simulated world of 1 x 1 as shown in the screenshot below: 
