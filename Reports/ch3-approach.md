@@ -58,7 +58,7 @@ In challenge 1 (as well as other following challenges), I am using tb3.py from P
 
 As we can see from the code above, the function "scan_callback()" is making use of the subscriber to get the data from the simulated Laser Scanner from the bot. When the Tb3 node is active, the scan_callback() function will be run constantly and the laser data will be collected at the rate of 5 hertz. How do I know that?
 
-While the node is active, we can see all active topics by running the command in the shell:
+While the node is active, we can see all active topics by running the following command in the shell:
 
     ros2 topic list -t 
 
