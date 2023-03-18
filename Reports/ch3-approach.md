@@ -4,7 +4,7 @@ During the 8 days course for Robot Programming, Professor Gökçe Aydos has intr
 ## Challenge 1 
 This is the first challenge to get our hands warm for the course. The goal of this challenge is to drive to the red wall as close as we can and stop without colliding into it. For this challenge, we need to run the bot in a simulated world of 1 x 1 as shown in the screenshot below: 
 
-!["This is a pic for 1 x 1 world"](/Screenshots/world_1_1.png)
+![This is a pic for 1 x 1 world](/Screenshots/world_1_1.png)
 
 In order to solve this challenge, there are two questions that has to be solved. 
 1. What is the minimum value of the laser distance sensor (LDS) that we should stop? 
@@ -65,7 +65,7 @@ While the node is active, we can see all active topics by running the command in
 The flag "-t" enables us to see the type of every topic. 
 After running the above command, it returns the following: 
 
-!["Pic for topics"](/Screenshots/topic_list.png)
+![Pic for topics](/Screenshots/topic_list.png)
 
 The topic responsible for the laser scan is "/scan", as you can see from the type written behind in the square bracket. You can check its frequecy by the following command:
 
@@ -73,8 +73,34 @@ The topic responsible for the laser scan is "/scan", as you can see from the typ
 
 And it returns the following: 
 
-!["Frequency for topic /scan"](/Screenshots/scan_frequency.png)
+![Frequency for topic /scan](/Screenshots/scan_frequency.png)
 
-### How to make the bot move? 
+### What is the minimum value of the laser distance sensor (LDS) that we should stop?
+Ideally, we should stop very near to the wall without crashing into it. Theoretically speaking, the closer the distance is to 0, the better. But sadly, there are simply too much noises in the Laser Scan (simulated LIDar) sensor, so we cannot set the distance too close to the wall as well. The sweet spot I found via trial and error is about 0.18.
 
+### How can we set the speed of the bot?
+The percentage of angular and linear velocity, defined by "self.ang_vel_percent" and "self.lin_vel_percent" respectively, are set to 0 by default. We can use the setter function "vel()" to change both of the values. The vel() function takes two extra parameters, namely "lin_vel_percent" that is used to change the linear velocity, and "ang_vel_percent" that is used to change the angular velocity of the bot. The angular velocity, however, will be set to 0 by default if the value is not given into the function. 
+Therefore, we can make the bot to move forward with for example 15% of its max linear velocity by writing the following code: 
 
+    self.vel(15)
+
+Combining both concepts, the solution looks as simple as below: 
+
+     def scan_callback(self, msg):
+        """ is run whenever a LaserScan msg is received
+        """
+        if msg.ranges[0] > 0.18:
+            self.vel(15)
+        else:
+            self.vel(0)
+
+This function will be executed everytime a LaserScan msg is received, about 5 times per second. The value msg.ranges[0] is the distance between the direct front of the bot to the obstacle (normally walls in our labyrith). If the distance between them is more than 0.18, the bot will simply move forward with 15% of its maximum linear velocity, otherwise, it will stop completly. 
+
+Below is the simulation for the solution: 
+
+![Challenge 1 video](/Screenshots/challenge1_showcase.gif)
+
+To test:
+![Challenge 1 video](/Screenshots/challenge1_showcase.mp4)
+![Challenge 1 video](/Screenshots/challenge1_showcase.webm)
+![Challenge 1 video](/Screenshots/challenge1_showcase.mov)
