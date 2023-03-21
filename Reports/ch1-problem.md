@@ -20,7 +20,7 @@ The picture of the 1 x 1 world is shown below:
 ![1x1 world](/Screenshots/world_1_1.png)  
 
 ### Challenge 1 
-In the same 1 x 1 world, we need the drive the robot as colose as we can to the red wall and stop without colliding. There are some questions that will help us along: 
+In the same 1 x 1 world, we need the drive the robot as close as we can to the red wall and stop without colliding. There are some questions that will help us along: 
 - What is the minimum value of the LDS at which we should stop? 
 - How to set the speed of the robot ?
 
