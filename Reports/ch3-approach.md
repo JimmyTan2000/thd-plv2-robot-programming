@@ -98,5 +98,6 @@ This function will be executed everytime a LaserScan msg is received, about 5 ti
 
 #### Below is the simulation for the solution: 
 
-![Challenge 1 video](/Screenshots/challenge1_showcase.mp4)
+![Challenge 1 gif](/Screenshots/gifs/challenge1_showcase.gif)
 
+## Challenge 2 
