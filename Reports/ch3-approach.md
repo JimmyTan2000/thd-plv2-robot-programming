@@ -58,7 +58,7 @@ In challenge 1 (as well as other following challenges), I am using tb3.py from P
             print('⬅️ :', msg.ranges[90])
             print('➡️ :', msg.ranges[-90])
 
-As we can see from the code above, the function "scan_callback()" is making use of the subscriber to get the data from the simulated Laser Scanner of the bot. When the Tb3 node is active, the scan_callback() function will be run constantly and the laser data will be collected at the rate of 5 hertz. How do I know that?
+As we can see from the code above, the function "scan_callback()" is making use of the subscriber to get the data from the simulated Laser Scanner of the robot. When the Tb3 node is active, the scan_callback() function will be run constantly and the laser data will be collected at the rate of 5 hertz. How do I know that?
 
 While the node is active, we can see all active topics by running the following command in the shell:
 
@@ -78,11 +78,11 @@ And it returns the following:
 ![Frequency for topic /scan](/Screenshots/scan_frequency.png)
 
 ### _What is the minimum value of the laser distance sensor (LDS) that we should stop?_
-Ideally, we should stop very near to the wall without crashing into it. Theoretically speaking, the closer the distance is to 0, the better. But sadly, there are simply too much noises in the Laser Scan (simulated LIDar) sensor, so we cannot set the distance too close to the wall as well. The sweet spot I found via trial and error is about 0.18.
+Ideally, we should stop very near to the wall without crashing into it. Theoretically speaking, the closer the distance is to 0, the better. But sadly, there are simply too much noises in the Laser Scan (simulated LiDAR) sensor, so we cannot set the distance too close to the wall as well. The sweet spot I found via trial and error is about 0.18.
 
 ### _How can we set the speed of the bot?_
-The percentage of angular and linear velocity, defined by "self.ang_vel_percent" and "self.lin_vel_percent" respectively, are set to 0 by default. We can use the setter function "vel()" to change both of the values. The vel() function takes two extra parameters, namely "lin_vel_percent" that is used to change the linear velocity, and "ang_vel_percent" that is used to change the angular velocity of the bot. The angular velocity, however, will be set to 0 by default if the value is not given into the function. 
-Therefore, we can make the bot to move forward with for example 15% of its max linear velocity by writing the following code: 
+The percentage of angular and linear velocity, defined by "self.ang_vel_percent" and "self.lin_vel_percent" respectively, are set to 0 by default. We can use the setter function "vel()" to change both of the values. The vel() function takes two extra parameters, namely "lin_vel_percent" that is used to change the linear velocity, and "ang_vel_percent" that is used to change the angular velocity of the robot. The angular velocity, however, will be set to 0 by default if the value is not given to the function. 
+Therefore, we can make the robot move forward with for example 15% of its max linear velocity by writing the following code: 
 
     self.vel(15)
 
@@ -96,7 +96,7 @@ Combining both concepts, the solution looks as simple as below:
         else:
             self.vel(0)
 
-This function will be executed everytime a LaserScan msg is received, about 5 times per second. The value msg.ranges[0] is the distance between the direct front of the bot to the obstacle (normally walls in our labyrith). If the distance between them is more than 0.18, the bot will simply move forward with 15% of its maximum linear velocity, otherwise, it will stop completly. 
+This function will be executed everytime a LaserScan msg is received, about 5 times per second. The value msg.ranges[0] is the distance between the direct front of the robot to the obstacle (normally walls in our labyrith). If the distance between them is more than 0.18, the bot will simply move forward with 15% of its maximum linear velocity, otherwise, it will stop completly. 
 
 ### _Result_: 
 
