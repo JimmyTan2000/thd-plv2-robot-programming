@@ -51,7 +51,7 @@ class Tb3(Node):
         print(state)
         
         # self.collision_avoidance_sensor(msg, 0.25)
-        self.loop_with_collision_avoidance(msg, 0.35)
+        self.loop_with_collision_avoidance(msg)
 
     def stop(self):
         self.vel(0)
@@ -71,14 +71,14 @@ class Tb3(Node):
     def rotate(self, ang_speed):
         self.vel(0, ang_speed)
 
-    def loop_with_collision_avoidance(self, msg, min_distance):
+    def loop_with_collision_avoidance(self, msg):
         global state
         if state == "go":
             self.collision_avoidance_sensor(msg, 0.3, "stopped")
         
         if state == "stopped":
             self.rotate(10)
-            if msg.ranges[-90] <= min_distance - 0.11:
+            if msg.ranges[-90] <= 0.24:
                 self.rotate(0)
                 state = "first rotation stopped"
 

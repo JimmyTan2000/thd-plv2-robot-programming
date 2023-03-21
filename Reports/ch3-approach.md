@@ -1,7 +1,9 @@
 # Challenges 
 During the 8 days course of Robot Programming, Professor Gökçe Aydos has introduced a set of problems for us to solve. They will be addressed and explained one by one below.
 
-## Challenge 1 
+-----
+
+# Challenge 1 
 This is the first challenge to get our hands warm for the course. The goal of this challenge is to drive to the red wall as close as we can and stop without colliding into it. For this challenge, we need to run the bot in a simulated world of 1 x 1 as shown in the screenshot below: 
 
 ![This is a pic for 1 x 1 world](/Screenshots/world_1_1.png)
@@ -10,7 +12,7 @@ In order to solve this challenge, there are two questions that has to be solved.
 1. What is the minimum value of the laser distance sensor (LDS) that we should stop? 
 2. How can we set the speed of the bot?
 
-### Solution for Challenge 1 
+## Solution for Challenge 1 
 In challenge 1 (as well as other following challenges), I am using tb3.py from Professor Gökçe Aydos as a starting point. In his code, These is a class for Tb3 Node, and inside this node there is a publisher and a subscriber. The publisher will publish to the 'cmd_vel' topic and the subscriber will get the data from the Laser Scanner. The original code for the class are shown below:   
 
     class Tb3(Node):
@@ -75,10 +77,10 @@ And it returns the following:
 
 ![Frequency for topic /scan](/Screenshots/scan_frequency.png)
 
-#### What is the minimum value of the laser distance sensor (LDS) that we should stop?
+### _What is the minimum value of the laser distance sensor (LDS) that we should stop?_
 Ideally, we should stop very near to the wall without crashing into it. Theoretically speaking, the closer the distance is to 0, the better. But sadly, there are simply too much noises in the Laser Scan (simulated LIDar) sensor, so we cannot set the distance too close to the wall as well. The sweet spot I found via trial and error is about 0.18.
 
-#### How can we set the speed of the bot?
+### _How can we set the speed of the bot?_
 The percentage of angular and linear velocity, defined by "self.ang_vel_percent" and "self.lin_vel_percent" respectively, are set to 0 by default. We can use the setter function "vel()" to change both of the values. The vel() function takes two extra parameters, namely "lin_vel_percent" that is used to change the linear velocity, and "ang_vel_percent" that is used to change the angular velocity of the bot. The angular velocity, however, will be set to 0 by default if the value is not given into the function. 
 Therefore, we can make the bot to move forward with for example 15% of its max linear velocity by writing the following code: 
 
@@ -96,8 +98,33 @@ Combining both concepts, the solution looks as simple as below:
 
 This function will be executed everytime a LaserScan msg is received, about 5 times per second. The value msg.ranges[0] is the distance between the direct front of the bot to the obstacle (normally walls in our labyrith). If the distance between them is more than 0.18, the bot will simply move forward with 15% of its maximum linear velocity, otherwise, it will stop completly. 
 
-#### Below is the simulation for the solution: 
+### _Result_: 
 
 ![Challenge 1 gif](/Screenshots/gifs/challenge1_showcase.gif)
 
-## Challenge 2 
+-----
+   
+# Challenge 2 
+The task is to drive to the red wall and stop at a safe distance. After that, rotate counter clockwise and drive close to the wooden wall and stop. We are allowed to only use laser distance sensor data for this challenge. 
+
+## Solution for challenge 2
+A simple state machine is implemented. However, the way of how it is implemented is not particularly elegant. I can show you some screenshots as examples for this "quick and dirty" approach. 
+
+![State machines as string, example 1](/Screenshots/challenge2_state_machines_1.png)
+
+As you can see from the screenshot above, there is one global variable named <mark>state</mark> with the value assigned to the string <mark>"go"</mark>. Its initial value will be overwritten by other functions as shown in the screenshot below: 
+
+![State machines as string, overwriting mechanism](/Screenshots/challenge2_state_overwriting.png)
+
+As you can see from the code above, this function will be using the global variable "state", which is defined as "go" initially. Therefore it will run the function <mark>collision_avoidance_sensor()</mark> (will be explained later), with <mark>"stopped"</mark> as its next state. In other words, it will drive to the red wall and stop at a safe distance and switch to the next state "stopped". 
+
+As the state transitioned to "stopped", the robot will begin to turn counter-clockwise. Its left side will be the nearest to the red wall when it performs a near 90 degree turn. Therefore, the robot will stop its rotation when the left side is the nearest to the red wall. Via trial and error, I have determined that the value of the minimum distance appears to be 0.24. 
+
+The <mark>collision_avoidance_sensor()</mark> is just to allow the robot to move forward when there is no obstacle in front and stops when it gets too near to them. The code is shown below: 
+
+![Collision avoidance with sensor, code](/Screenshots/collision_avoidance_sensor.png)
+
+As you have probably already realised, the states that I am using here are not generic. For example, there are states such as "first rotation stopped" and "first wall reached". The reason for that is, at the point of development, I have no idea that we have to make the code as general as possible so that it can solve different mazes with the same piece of code. So, for challenge 1 to challenge 4, the maze are solved in such a hard coded way (which means the code would not work anymore if the maze changes). Fortunately, I have generalized the code in challenge 5. 
+
+### _Result_: 
+![GIF for challenge 2](/Screenshots/gifs/challenge2_showcase.gif)
