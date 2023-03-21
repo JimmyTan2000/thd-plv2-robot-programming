@@ -1,5 +1,5 @@
-# Challenges 
-During the 8 days course of Robot Programming, Professor Gökçe Aydos has introduced a set of problems for us to solve. They will be addressed and explained one by one below.
+# Approaches to Challenges 
+For all the challenges introduced earlier, my approaches to solve those challenges will be shown and explained below.
 
 -----
 
