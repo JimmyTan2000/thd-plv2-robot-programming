@@ -96,7 +96,7 @@ Combining both concepts, the solution looks as simple as below:
         else:
             self.vel(0)
 
-This function will be executed everytime a LaserScan msg is received, about 5 times per second. The value msg.ranges[0] is the distance between the direct front of the robot to the obstacle (normally walls in our labyrith). If the distance between them is more than 0.18, the bot will simply move forward with 15% of its maximum linear velocity, otherwise, it will stop completly. 
+This function will be executed everytime a LaserScan msg is received, about 5 times per second. The value msg.ranges[0] is the distance between the direct front of the robot to the obstacle (normally walls in our labyrith). If the distance between them is more than 0.18, the robot will simply move forward with 15% of its maximum linear velocity, otherwise, it will stop completly. 
 
 ### _Result_: 
 
