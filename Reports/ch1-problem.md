@@ -55,7 +55,8 @@ In a 5 x 5 world, we need to make the robot touch the red wall in the shortest t
 
 The picture attach below shows one of the 5 x 5 world generated:  
 
-![Picture of the simulated 5 x 5 world](/Screenshots/world_5_5.png)
+![Picture of the simulated 5 x 5 world](/Screenshots/world_5_5.png)  
+
 <font size="1"> The picture above shows the 5 x 5 world simulated with the Gazebo Simulator</font>
 
 ### Competition 
