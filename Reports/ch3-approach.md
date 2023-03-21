@@ -13,7 +13,7 @@ In order to solve this challenge, there are two questions that has to be solved.
 2. How can we set the speed of the bot?
 
 ## Solution for Challenge 1 
-In challenge 1 (as well as other following challenges), I am using tb3.py from Professor Gökçe Aydos as a starting point. In his code, These is a class for Tb3 Node, and inside this node there is a publisher and a subscriber. The publisher will publish to the 'cmd_vel' topic and the subscriber will get the data from the Laser Scanner. The original code for the class are shown below:   
+In challenge 1 (as well as other following challenges), I am using tb3.py from Professor Gökçe Aydos as a starting point. In his code, there is a class for Tb3 node, and inside this node there is a publisher and a subscriber. The publisher will publish to the 'cmd_vel' topic and the subscriber will get the data from the Laser Scanner. The original code for the class are shown below:   
 
     class Tb3(Node):
         def __init__(self):
