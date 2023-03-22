@@ -124,7 +124,7 @@ The <mark>collision_avoidance_sensor()</mark> is just to allow the robot to move
 
 ![Collision avoidance with sensor, code](/Screenshots/collision_avoidance_sensor.png)
 
-As you have probably already realised, the states that I am using here are not generic. For example, there are states such as "first rotation stopped" and "first wall reached". The reason for that is, at the point of development, I have no idea that we have to make the code as general as possible so that it can solve different mazes with the same piece of code. So, for challenge 1 to challenge 4, the maze are solved in such a hard coded way (which means the code would not work anymore if the maze changes). Fortunately, I have generalized the code in challenge 5. 
+As you have probably already realised, the states that I am using here are not generic. For example, there are states such as "first rotation stopped" and "first wall reached". The reason for that is, at the point of development, I have no idea that we have to make the code as general as possible so that it can solve different mazes with the same piece of code. So, for challenge 1 to challenge 4, the mazes are solved in such a hard coded way (which means the code would not work anymore if the maze changes). Fortunately, I have generalized the code in challenge 5. 
 
 ### _Result_: 
 
