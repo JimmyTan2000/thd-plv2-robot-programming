@@ -105,7 +105,7 @@ This function will be executed everytime a LaserScan msg is received, about 5 ti
 -----
    
 # Challenge 2 
-The task is to drive to the red wall and stop at a safe distance. After that, rotate counter clockwise and drive close to the wooden wall and stop. We are allowed to only use laser distance sensor data for this challenge. 
+For this challenge, we are still working with the same 1 x 1 world as challenge 1. The task is to drive to the red wall and stop at a safe distance. After that, rotate counter clockwise and drive close to the wooden wall and stop. We are allowed to only use laser distance sensor data for this challenge. 
 
 ## Solution for challenge 2
 A simple state machine is implemented. However, the way of how it is implemented is not particularly elegant. I can show you some screenshots as examples for this "quick and dirty" approach. 
