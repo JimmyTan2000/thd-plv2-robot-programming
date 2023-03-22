@@ -118,7 +118,7 @@ As you can see from the screenshot above, there is one global variable named <ma
 
 As you can see from the code above, this function will be using the global variable "state", which is defined as "go" initially. Therefore it will run the function <mark>collision_avoidance_sensor()</mark> (will be explained later), with <mark>"stopped"</mark> as its next state. In other words, it will drive to the red wall and stop at a safe distance and switch to the next state "stopped". 
 
-As the state transitioned to "stopped", the robot will begin to turn counter-clockwise. Its left side will be the nearest to the red wall when it performs a near 90 degree turn. Therefore, the robot will stop its rotation when the left side is the nearest to the red wall. Via trial and error, I have determined that the value of the minimum distance appears to be 0.24. 
+As the state transitioned to "stopped", the robot will begin to turn counter-clockwise. Its right side will be the nearest to the red wall when it performs a near 90 degree turn. Therefore, the robot will stop its rotation when the right side is the nearest to the red wall. Via trial and error, I have determined that the value of the minimum distance appears to be 0.24. 
 
 The <mark>collision_avoidance_sensor()</mark> is just to allow the robot to move forward when there is no obstacle in front and stops when it gets too near to them. The code is shown below: 
 
