@@ -1,5 +1,6 @@
-# Approaches to Challenges 
-For all the challenges introduced earlier, my approaches to solve those challenges will be shown and explained below.
+# Approaches to Challenges (Part 1)
+
+The approaches and solutions for Challenge 1 to Challenge 4 are written and explained in this slide. For Challenge 5, please read part 2. 
 
 -----
 
@@ -202,8 +203,5 @@ Surprisingly enough, because the solution is so hard coded, I can solve this maz
 
 ![Challenge 4 showcase](/Screenshots/gifs/challenge4_showcase.gif)
 
---------
 
-# Challenge 5 
 
-This time, we are dealing with a much bigger 5 x 5 world. It was at this time that I realised our code has to be generalized so it is able to solve any other different mazes. 

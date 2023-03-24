@@ -45,7 +45,8 @@ class Tb3(Node):
 
         self.ang_vel_percent = 0
         self.lin_vel_percent = 0
-        # self.state = State.DEBUG # GO for normal execution and DEBUG for debugging 
+        # DRIVING for normal execution and DEBUG for debugging
+        # self.state = State.DEBUG  
         self.state = State.DRIVING
         self.rotate_condition = None
         self.last_location_x = []
