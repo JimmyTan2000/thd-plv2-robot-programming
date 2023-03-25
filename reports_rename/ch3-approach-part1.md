@@ -16,6 +16,7 @@ In order to solve this challenge, there are two questions that has to be solved.
 ## Solution for Challenge 1 
 In challenge 1 (as well as other following challenges), I am using tb3.py from Professor Gökçe Aydos as a starting point. In his code, there is a class for Tb3 node, and inside this node there is a publisher and a subscriber. The publisher will publish to the 'cmd_vel' topic and the subscriber will get the data from the Laser Scanner. The original code for the class are shown below:   
 
+```python
     class Tb3(Node):
         def __init__(self):
             super().__init__('tb3')
@@ -58,6 +59,7 @@ In challenge 1 (as well as other following challenges), I am using tb3.py from P
             print('⬇️ :', msg.ranges[180])
             print('⬅️ :', msg.ranges[90])
             print('➡️ :', msg.ranges[-90])
+```
 
 As we can see from the code above, the function "scan_callback()" is making use of the subscriber to get the data from the simulated Laser Scanner of the robot. When the Tb3 node is active, the scan_callback() function will be run constantly and the laser data will be collected at the rate of 5 hertz. How do I know that?
 
@@ -85,10 +87,13 @@ Ideally, we should stop very near to the wall without crashing into it. Theoreti
 The percentage of angular and linear velocity, defined by "self.ang_vel_percent" and "self.lin_vel_percent" respectively, are set to 0 by default. We can use the setter function "vel()" to change both of the values. The vel() function takes two extra parameters, namely "lin_vel_percent" that is used to change the linear velocity, and "ang_vel_percent" that is used to change the angular velocity of the robot. The angular velocity, however, will be set to 0 by default if the value is not given to the function. 
 Therefore, we can make the robot move forward with for example 15% of its max linear velocity by writing the following code: 
 
+```python
     self.vel(15)
+```
 
 Combining both concepts, the solution looks as simple as below: 
 
+```python
      def scan_callback(self, msg):
         """ is run whenever a LaserScan msg is received
         """
@@ -96,8 +101,9 @@ Combining both concepts, the solution looks as simple as below:
             self.vel(15)
         else:
             self.vel(0)
+```
 
-This function will be executed everytime a LaserScan msg is received, about 5 times per second. The value msg.ranges[0] is the distance between the direct front of the robot to the obstacle (normally walls in our labyrith). If the distance between them is more than 0.18, the robot will simply move forward with 15% of its maximum linear velocity, otherwise, it will stop completly. 
+This function will be executed everytime a LaserScan msg is received, about 5 times per second. The value msg.ranges[0] is the distance between the direct front of the robot to the obstacle (normally walls in our labyrinth). If the distance between them is more than 0.18, the robot will simply move forward with 15% of its maximum linear velocity, otherwise, it will stop completely. 
 
 ### _Result_: 
 

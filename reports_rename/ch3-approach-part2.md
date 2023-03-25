@@ -20,6 +20,7 @@ Of course, theory without implementation is merely a theory. In order to put thi
 ### 1. State Machines 
 Unlike the previous codes which uses very hard coded state machines, the state machine defined here is much more general. Attached below is the snippet of the code: 
 
+```python
     class State(Enum):
         DRIVING = auto()
         BLOCKED = auto()
@@ -30,11 +31,13 @@ Unlike the previous codes which uses very hard coded state machines, the state m
         SEEN_RED_WALL = auto()
         REACHED_RED_WALL = ()
         END = auto()
+```
 
 As you can see from the code snippet above, the robot has more general states such as <mark>DRIVING</mark> and <mark>AT_JUNCTION</mark>. You can ignore the state <mark>DEBUG</mark> because it is only used to return sensor metadata for debugging during development process. The initial state of the robot is defined as State.DRIVING in the beginning by defining it in the class of Tb3 Node. 
 
 The snippet below shows the code of the class of Tb3 node: 
 
+```python
     class Tb3(Node):
         def __init__(self):
             super().__init__('tb3')
@@ -64,7 +67,8 @@ The snippet below shows the code of the class of Tb3 node:
             self.rotate_condition = None
             self.last_location_x = []
             self.last_location_y = []
-    
+```    
+
 ### 2. Junction Identification
 Identifying a junction is one of the crucial part for making this algorithm work. Intuitively, this could easily be solved by identifying an open space at the left side of the robot and turn whenever an open space is detected. But this also means that we are abandoning turning to the right (eg: turning right might be the only choice for the robot when it is at the corner with its left side blocked). This could easily be solved by only applying the "always turn left" theory at the junction and implement a general rotating mechanism when a robot is blocked with obstacle in front (this part of the code will be explained later under the topic "4. Decision for the Direction of Rotation When Encountering Obstacles")
 
@@ -82,6 +86,7 @@ So, by looking at the picture before and after rotation, I decided to also check
 
 Below is the snippet of the code that identifies the junction: 
 
+```python
     if msg.ranges[0] > 1.2 and msg.ranges[90] > 1.2 and self.state == State.DRIVING and msg.ranges[180] > 1.2 and self.state != State.END and self.rotate_condition != 1:
             self.state = State.AT_JUNCTION
 
@@ -95,6 +100,7 @@ and below is the code for the state AT_JUNCTION:
                 self.last_location_x = []
                 self.last_location_y = []
                 self.state = State.ROTATING
+```
 
 You will probably wonder why I append the x and y coordinates of the robot at the junction into some lists. It is used to delay the rotation of the robot. Without them, the robot will rotate as soon as it detects a junction, drives into it and bang into the wall because it turns too early. To solve this, I decided to store the x and y coordinates of the robot when it first detects the junction and by comparing its actual coordinates with those x and y coordinates recorded, I can make the robot turns only after travelling a certain distance along the x or y axis. 
 
@@ -111,19 +117,23 @@ If the value of the absolute value (removing the negative sign) of k after round
 
 From the code snippet below, we can see that the robot will stop rotating after the absolute value of k is equal to 0, 90 or 180 after rounding up, and the state will switch to <mark>DRIVING</mark>.
 
+```python
         if self.state == State.ROTATING:
             if round(abs(k)) == 0 or round(abs(k)) == 90 or round(abs(k)) == 180:
                 self.rotate(0)
                 self.state = State.DRIVING
+```
 
 ### 4. Decision for the Direction of Rotation When Encountering Obstacles 
 When the robot is driving forward in the <mark>DRIVING</mark> state, it will constantly use the LaserScan data returned by the <mark>scan_callback()</mark> function to check if there is anything too near to the front of it. If the distance between the obstacle and the front part of the robot is smaller than 0.6, it will switch its state to <mark>BLOCKED</mark>. 
 
 Below is the code snippet for the above mentioned implementation: 
 
+```python
         if msg.ranges[0] < 0.6 and self.state != State.SEEN_RED_WALL and 
         self.state != State.REACHED_RED_WALL and self.state != State.END:
                 self.state = State.BLOCKED
+```
 
 When it is blocked, the robot will have 3 choices to turn depending on the scenario. 
 
@@ -138,6 +148,7 @@ The complete opposite of situation 2. In the case where the left side is an open
 
 The code for scenarios 1, 2 and 3 are all condensed in the code snippet below: 
 
+```python
         def decide_rotate_direction(self, msg):
                 print("deciding")
                 if msg.ranges [-90] > 1.1 and msg.ranges[90] > 1.1:
@@ -150,6 +161,7 @@ The code for scenarios 1, 2 and 3 are all condensed in the code snippet below:
                         self.rotate(15)
                         self.rotate_condition = 3
                 self.state = State.ROTATING
+```
 
 The scenarios 1, 2 and 3 corresponds to the number of <mark>self.rotate_condition</mark> in the code above. 
 
@@ -158,6 +170,7 @@ The scenarios 1, 2 and 3 corresponds to the number of <mark>self.rotate_conditio
 At first, I just make the robot move very fast towards the red wall and slow down when it reaches a certain distance. 
 Below is the code snippet for the above mentioned implementation:
 
+```python
         def touch_wall_and_stop(self, msg, slow_distance, next_state = None):
                 if msg.ranges[0] > slow_distance:
                          self.go()
@@ -167,6 +180,7 @@ Below is the code snippet for the above mentioned implementation:
                                 print("Red wall touched")
                                 self.stop()
                                 self.state = next_state
+```
 
 Most of the time this implementation works fine, but it has 2 major drawbacks:   
 
@@ -179,13 +193,14 @@ Instead of slowing down, I just make the robot bang into the wall at full speed 
 
  Below is the code for the above mentioned implementation: 
 
+```python
         def touch_wall_and_stop(self, msg, slow_distance, next_state = None):
                 self.go()
                 if isinf(msg.ranges[0]) or isinf(msg.ranges[-90]):
                         # print("inf registered")
                         self.stop()
                         self.state = next_state
-
+```
 
 ### ***Results***:
 With those codes implemented, we can generalize the maze solving capabalities in a surprisingly simple way. Below are a few of GIFs to demonstrate the code in action: 
@@ -200,15 +215,15 @@ Default 5 x 5 world, location 2:
 
 ![Code showcase 5 x 5, case 2](/media/gifs/challenge5_2_showcase.gif)
 
-Competetion, world_5_5_a:    
+Competition, world_5_5_a:    
 
 ![Code showcase world_5_5_a](/media/gifs/challenge5_a_showcase.gif)
 
-Competetion, world_5_5_b:    
+Competition, world_5_5_b:    
 
 ![Code showcase world_5_5_b](/media/gifs/challenge5_b_showcase.gif)
 
-Competetion, world_5_5_c:  
+Competition, world_5_5_c:  
 
 ![Code showcase world_5_5_c](/media/gifs/challenge5_c_showcase.gif)
 
