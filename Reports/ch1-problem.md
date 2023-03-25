@@ -17,7 +17,7 @@ This challenge is just to test if our installation is correct and if everything 
 
 The picture of the 1 x 1 world is shown below:  
 
-![1x1 world](/Screenshots/world_1_1.png)  
+![1x1 world](/media/world_1_1.png)  
 
 ### Challenge 1 
 In the same 1 x 1 world, we need the drive the robot as close as we can to the red wall and stop without colliding. There are some questions that will help us along: 
@@ -44,7 +44,7 @@ Now we are using a 2 x 2 world. We need to drive the robot to the cell with the 
 
 The picture of the 2 x 2 world is shown below: 
 
-![Picture of the simulated 2 x 2 world](/Screenshots/world_2_2.png)  
+![Picture of the simulated 2 x 2 world](/media/world_2_2.png)  
 
 ### Challenge 5 
 In a 5 x 5 world, we need to make the robot touch the red wall in the shortest time possible. We should, however, never touch any other wall. When it is solved, we can also try with another 5 x 5 world using the following command: 
@@ -53,7 +53,7 @@ In a 5 x 5 world, we need to make the robot touch the red wall in the shortest t
 
 The picture attached below shows one of the 5 x 5 world generated:  
 
-![Picture of the simulated 5 x 5 world](/Screenshots/world_5_5.png)  
+![Picture of the simulated 5 x 5 world](/media/world_5_5.png)  
 
 ### Competition 
 It is similar to challenge 5. However, now we need to run the robot in 3 different 5 x 5 mazes with the same code and record the time of each completion. An average time will be taken in the end. 

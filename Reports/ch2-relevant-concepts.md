@@ -10,21 +10,21 @@ Nodes in ROS2 are the basic building blocks. Each node should only be responsibl
 
 Their interactions can be shown in the GIF below:  
 
-![Interaction of nodes with each other in ROS 2](/Screenshots/gifs/Nodes-TopicandService.gif)
+![Interaction of nodes with each other in ROS 2](/media/gifs/Nodes-TopicandService.gif)
 
 ### Topics 
 Topics are a vital element of the ROS graph that act as a bus for nodes to exchange messages. It is one of the many ways in which data is being transfered between different nodes. A node may publish data to any number of topics and simultaneously have subscriptions to any number of topics. 
 
 The interactions of nodes via topics are demonstrated in the GIF below:  
 
-![Interaction of nodes via topics](/Screenshots/gifs/Topic-MultiplePublisherandMultipleSubscriber.gif)
+![Interaction of nodes via topics](/media/gifs/Topic-MultiplePublisherandMultipleSubscriber.gif)
 
 ## Turtlebot3 Waffle Pi 
 It is a popular open-source robot platform designed for education, research, and hobbyist purposes. It is built around the Raspberry Pi single-board computer and features a differential drive system, a 360-degree LiDAR sensor, and a camera for visual input.
 
 The picture below shows Turtlebot3 Waffle Pi and its components:   
 
-![Turtlebot3 Waffle Pi](/Screenshots/turtlebot_waffle_pi.png)
+![Turtlebot3 Waffle Pi](/media/turtlebot_waffle_pi.png)
 
 Together with ROS 2 mentioned above, we can do amazing tasks such as solving a maze. However, due to some defects of the robot in the lab, we can only test our code purely based on simulation using Gazebo Simulator. 
 

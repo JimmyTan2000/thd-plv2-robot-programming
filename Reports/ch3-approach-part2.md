@@ -70,13 +70,13 @@ Identifying a junction is one of the crucial part for making this algorithm work
 
 According to the definition above, being at a junction basically means the robot is not blocked (no obstacle in front) and there is an open space at its left side. I can demonstrate it using a diagram below: 
 
-![Junction example 1](/Screenshots/junction_before.png)
+![Junction example 1](/media/junction_before.png)
 
 The triangle represents the robot and the red arrow represents the direction of driving. The blue stripes represent the area we are scanning to define a junction (front and left). This diagram shows the position and orientation of the robot when it first reaches the junction without rotation. 
 
 However, after rotation, the condition that defines what a junction is will still be satisfied. The front and left side of the robot would still be opened and the robot will be still in the <mark>AT_JUNCTION</mark> state and rotate again instead of driving into the left side of the junction. The diagram below shows the position and orientation of the robot after rotation:
 
-![Junction example 2](/Screenshots/junction_after.png)
+![Junction example 2](/media/junction_after.png)
 
 So, by looking at the picture before and after rotation, I decided to also check the back of the robot. For example, before the robot rotates at the junction, the front, the left side and the back of the robot is opened. However, after rotation, the back side of the robot will be blocked by the wall. Therefore, if the back is blocked, I can know that the rotation of the robot at the junction is complete and I can therefore stop its rotation and switch it to the DRIVING state again so that it moves forward. 
 
@@ -103,9 +103,9 @@ A list is used to store the value of the coordinates instead of using a single n
 So...what happens during the <mark>ROTATING</mark> state? 
 
 ### 3. Determining when to stop rotating 
-Reusing the diagram from challenge 3, we can see the value of "k" with the corresponding orientation returned by the <mark>odom_callback()</mark> function
+Reusing the diagram from challenge 3, we can see the value of "k" with the corresponding orientation returned by the <mark>odom_callback()</mark> function:
 
-![Value of k with the corresponding orientation](/Screenshots/odom_compass.png)
+![Value of k with the corresponding orientation](/media/odom_compass.png)
 
 If the value of the absolute value (removing the negative sign) of k after rounding up is equal to 0, 90 and 180, we can conclude that it is almost parallel with the x and y axis. This also means that the robot has finished his rotation. 
 
@@ -194,20 +194,25 @@ With those codes implemented, we can generalize the maze solving capabalities in
 
 Default 5 x 5 world, location 1:
 
-![Code showcase 5 x 5, case 1](/Screenshots/gifs/challenge5_1_showcase.gif)
+![Code showcase 5 x 5, case 1](/media/gifs/challenge5_1_showcase.gif)
 
 Default 5 x 5 world, location 2:
 
-![Code showcase 5 x 5, case 2](/Screenshots/gifs/challenge5_2_showcase.gif)
+![Code showcase 5 x 5, case 2](/media/gifs/challenge5_2_showcase.gif)
 
 Competetion, world_5_5_a:    
 
-![Code showcase world_5_5_a](/Screenshots/gifs/challenge5_a_showcase.gif)
+![Code showcase world_5_5_a](/media/gifs/challenge5_a_showcase.gif)
 
 Competetion, world_5_5_b:    
 
-![Code showcase world_5_5_b](/Screenshots/gifs/challenge5_b_showcase.gif)
+![Code showcase world_5_5_b](/media/gifs/challenge5_b_showcase.gif)
 
 Competetion, world_5_5_c:  
 
-![Code showcase world_5_5_c](/Screenshots/gifs/challenge5_c_showcase.gif)
+![Code showcase world_5_5_c](/media/gifs/challenge5_c_showcase.gif)
+
+
+### ***Visual diagram to show how the code works:*** 
+
+![Architecture Diagram](/media/architecture_diagram_2.png)

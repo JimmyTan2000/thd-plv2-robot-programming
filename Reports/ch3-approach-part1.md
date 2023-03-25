@@ -7,7 +7,7 @@ The approaches and solutions for Challenge 1 to Challenge 4 are written and expl
 # Challenge 1 
 This is the first challenge to get our hands warm for the course. The goal of this challenge is to drive to the red wall as close as we can and stop without colliding into it. For this challenge, we need to run the bot in a simulated world of 1 x 1 as shown in the screenshot below: 
 
-![This is a pic for 1 x 1 world](/Screenshots/world_1_1.png)
+![This is a pic for 1 x 1 world](/media/world_1_1.png)
 
 In order to solve this challenge, there are two questions that has to be solved. 
 1. What is the minimum value of the laser distance sensor (LDS) that we should stop? 
@@ -68,7 +68,7 @@ While the node is active, we can see all active topics by running the following 
 The flag "-t" enables us to see the type of every topic. 
 After running the above command, it returns the following: 
 
-![Pic for topics](/Screenshots/topic_list.png)
+![Pic for topics](/media/topic_list.png)
 
 The topic responsible for the laser scan is "/scan", as you can see from the type written behind in the square bracket. You can check its frequecy by the following command:
 
@@ -76,7 +76,7 @@ The topic responsible for the laser scan is "/scan", as you can see from the typ
 
 And it returns the following: 
 
-![Frequency for topic /scan](/Screenshots/scan_frequency.png)
+![Frequency for topic /scan](/media/scan_frequency.png)
 
 ### _What is the minimum value of the laser distance sensor (LDS) that we should stop?_
 Ideally, we should stop very near to the wall without crashing into it. Theoretically speaking, the closer the distance is to 0, the better. But sadly, there are simply too much noises in the Laser Scan (simulated LiDAR) sensor, so we cannot set the distance too close to the wall as well. The sweet spot I found via trial and error is about 0.18.
@@ -101,7 +101,7 @@ This function will be executed everytime a LaserScan msg is received, about 5 ti
 
 ### _Result_: 
 
-![Challenge 1 gif](/Screenshots/gifs/challenge1_showcase.gif)
+![Challenge 1 gif](/media/gifs/challenge1_showcase.gif)
 
 -----
    
@@ -111,11 +111,11 @@ For this challenge, we are still working with the same 1 x 1 world as challenge 
 ## Solution for challenge 2
 A simple state machine is implemented. However, the way of how it is implemented is not particularly elegant. I can show you some screenshots as examples for this "quick and dirty" approach. 
 
-![State machines as string, example 1](/Screenshots/challenge2_state_machines_1.png)
+![State machines as string, example 1](/media/challenge2_state_machines_1.png)
 
 As you can see from the screenshot above, there is one global variable named <mark>state</mark> with the value assigned to the string <mark>"go"</mark>. Its initial value will be overwritten by other functions as shown in the screenshot below: 
 
-![State machines as string, overwriting mechanism](/Screenshots/challenge2_state_overwriting.png)
+![State machines as string, overwriting mechanism](/media/challenge2_state_overwriting.png)
 
 As you can see from the code above, this function will be using the global variable "state", which is defined as "go" initially. Therefore it will run the function <mark>collision_avoidance_sensor()</mark> (will be explained later), with <mark>"stopped"</mark> as its next state. In other words, it will drive to the red wall and stop at a safe distance and switch to the next state "stopped". 
 
@@ -123,13 +123,13 @@ As the state transitioned to "stopped", the robot will begin to turn counter-clo
 
 The <mark>collision_avoidance_sensor()</mark> is just to allow the robot to move forward when there is no obstacle in front and stops when it gets too near to them. The code is shown below: 
 
-![Collision avoidance with sensor, code](/Screenshots/collision_avoidance_sensor.png)
+![Collision avoidance with sensor, code](/media/collision_avoidance_sensor.png)
 
 As you have probably already realised, the states that I am using here are not generic. For example, there are states such as "first rotation stopped" and "first wall reached". The reason for that is, at the point of development, I have no idea that we have to make the code as general as possible so that it can solve different mazes with the same piece of code. So, for challenge 1 to challenge 4, the mazes are solved in such a hard coded way (which means the code would not work anymore if the maze changes). Fortunately, I have generalized the code in challenge 5. 
 
 ### _Result_: 
 
-![GIF for challenge 2](/Screenshots/gifs/challenge2_showcase.gif)
+![GIF for challenge 2](/media/gifs/challenge2_showcase.gif)
 
 --------
 # Challenge 3 
@@ -138,38 +138,38 @@ This challenge is the exact same as challenge 2, but instead of using laser dist
 ## Solution for challenge 3 
 Just like challenge 2, State Machines are also implemented here. However, it is implemented in a much elegant and cleaner way (although not perfect). Python Enumerations are used instead of using just strings. In this way, all the possible states can be written in just a single class. The enumeration class with the name "State" looks like this:  
 
-![Screenshot for python enum](/Screenshots/python_enum.png)
+![Screenshot for python enum](/media/python_enum.png)
 
 As you can see from the screenshot above, all the states can be seen in just a glance. There are four states here, namely "GO", "STOPPED", "FIRST_ROTATION_STOPPED" and "END". Since their names are pretty self-explanatory, I will not explain them here. 
 
 The Tb3 class will now have one extra instance attribute "self.state" with the initial value "State.GO"  
 
-![Picture of self.state](/Screenshots/self.state.png)
+![Picture of self.state](/media/self.state.png)
 
 And the states will also be changed at the end of other function calls like this: 
 
-![State change enum](/Screenshots/state_change_enum.png)  
+![State change enum](/media/state_change_enum.png)  
 
 In order to receive data from the <mark>/odom</mark> topic, I have created a subcription that receives the msg of type <mark>Odometry</mark>. The code looks very similar to the code for the subscription of the LaserScan:
 
-![Odom subscription](/Screenshots/odom_sub.png)
+![Odom subscription](/media/odom_sub.png)
 
 Getting odometry information from this subscription is also very similar to the scan_callback() function for the LaserScan. I have defined the name of the function as <mark>odom_callback</mark> and it looks like this: 
 
-![Odom Callback](/Screenshots/odom_callback.png)
+![Odom Callback](/media/odom_callback.png)
 
 
 Among all the information returned by this odom_callback() function, the only one that is relevant for us is the orientation in free space represented in quaternion form. We can change them into euler angles in radian and change those angles from radian to degree just by multiplying it with the ratio of (180/pi). You can also use the built in python function math.degrees() to change it to degrees too. 
 
 From the quartenion information that is returned by the odom_callback(), we can obtain 3 euler angles in radian after conversion using the <mark>quat2euler()</mark> function from the transforms3d.euler library. I have named those angles as i, j and k. However, the only angle that will change during the rotation of the robot is <mark>k</mark>. <mark>k</mark> will have the value of 90 degrees when it is facing directly to the front, 0 degree when it is facing the right, -90 degrees when facing the back and -180 degrees when facing the left. Those information are summarized in the diagram below: 
 
-![Odom compass](/Screenshots/odom_compass.png)
+![Odom compass](/media/odom_compass.png)
 
 From the code above, we can see that the bot will stop rotating when the value of "k" is 180 or -180. Which also means that it will stop rotating when it is facing the left side, which is what we want to achieve in this challenge. It is obviously hard coded at this point. Code generalisation will be achieved in challenge 5. 
 
 ### _Result_: 
 
-![Result of challenge 3](/Screenshots/gifs/challenge3_showcase.gif)
+![Result of challenge 3](/media/gifs/challenge3_showcase.gif)
 
 -----
 
@@ -177,7 +177,7 @@ From the code above, we can see that the bot will stop rotating when the value o
 Different to other 3 challenges, now we are dealing with a 2 x 2 world instead of 1 x 1. 
 Shown below is the 2 x 2 world that we're working with: 
 
-![2 x 2 world picture](/Screenshots/world_2_2.png)
+![2 x 2 world picture](/media/world_2_2.png)
 
 The task is to drive to the red wall and stop without any collision. 
 
@@ -191,17 +191,17 @@ After investigating deeper into the output of the <mark>/scan</mark> topic, I re
 
 The screenshot below shows the <mark>intensities</mark> metadata for red walls: 
 
-![Red wall LaserScan intensity](/Screenshots/red_intensity.png)
+![Red wall LaserScan intensity](/media/red_intensity.png)
 
 And again, for this challenge, there are more states as shown in the screenshot below, and yes, they are still hard coded in some way (Do this when it reaches the first cell, rotate, do that when the first rotation is stopped and so on until it reaches its end goal)
 
-![States for challenge 4](/Screenshots/states_ch4.png)
+![States for challenge 4](/media/states_ch4.png)
 
 Surprisingly enough, because the solution is so hard coded, I can solve this maze without implementing a way to identify the red wall. I just make it stop after it has went through all the pre-defined states. It is, however, implemented in challenge 5 in order to make the code generalization possible. 
 
 ### _Result_: 
 
-![Challenge 4 showcase](/Screenshots/gifs/challenge4_showcase.gif)
+![Challenge 4 showcase](/media/gifs/challenge4_showcase.gif)
 
 
 
