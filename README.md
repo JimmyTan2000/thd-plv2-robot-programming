@@ -2,7 +2,7 @@
 These are the code to solve the challenges [in this repository](https://mygit.th-deg.de/gaydos/tb3-maze-challenges).
 
 # Contributors
-I have developed all the code alone. Hence I am the only contributers here. 
+I have developed all the code alone. Hence I am the only contributer here. 
 
 ### ***Details:***  
 ***Name:*** Jimmy Tan   
