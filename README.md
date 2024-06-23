@@ -34,4 +34,4 @@ In another terminal, run the python code for the corresponding challenges. Suppo
 
 # Link to report
 
-For the report, it is deployed on the internet and you can check it here: [Jimmy Tan's report for this project](https://joan.th-deg.de/~jt27296/sphinx-book-template/).
+For the report, it is deployed on the internet and you can check it here: [Jimmy Tan's report for this project](https://jimmytan2000.github.io/thd-robot-programming-report-webserver/).
